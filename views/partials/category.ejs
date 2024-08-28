@@ -1,0 +1,13 @@
+<div class="category-partial">
+  <div class="title">category</div>
+  <ul class="category-list">
+    <li class="category"><a class="category-link" href="/">All Books</a></li>
+    <% category.forEach(genre=>{%>
+    <li class="category">
+      <a class="category-link" href="/?category=<%= genre.genre %>"
+        ><%= genre.genre %></a
+      >
+    </li>
+    <%}) %>
+  </ul>
+</div>
