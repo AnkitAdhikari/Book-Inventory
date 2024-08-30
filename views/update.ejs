@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Update Book</title>
+  <script>
+    function addAuthorField() {
+      const container = document.getElementById('author-fields');
+      const index = container.children.length + 1;
+      const newField = document.createElement('div');
+      newField.innerHTML = `
+        <input type="text" name="author[]" placeholder="Author Name">
+        <button type="button" onclick="removeAuthorField(this)">Remove</button>
+      `;
+      container.appendChild(newField);
+    }
+
+    function removeAuthorField(button) {
+      const container = document.getElementById('author-fields');
+      container.removeChild(button.parentElement);
+    }
+  </script>
+</head>
+<body>
+    <%- include('partials/error')%>
+    <form action="/<%= book.id %>?_method=PUT" method="post">    
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" value="<%= book.title %>">
+    
+    <label for="page">Page:</label>
+    <input type="number" name="page" id="page" value="<%= book.page %>" />
+    
+    <label for="genre">Genre:</label>
+    <select name="genre" id="genre">
+      <% genres.forEach(function(genre) { %>
+        <option value="<%= genre.name %>" <%= book.genre === genre.name ? 'selected' : '' %> >
+          <%= genre.name %>
+        </option>
+      <% }); %>
+    </select>
+    
+    <label for="description">Description:</label>
+    <textarea
+      name="description"
+      id="description"
+      placeholder="Book Description..."
+    ><%= book.description %></textarea>
+    
+    <label for="price">Price (&dollar;):</label>
+    <input type="text" name="price" id="price" value="<%= book.price %>" />
+    
+
+    <div id="author-fields">
+      <% book.authors.forEach(function(author) { %>
+        <div>
+          <input type="text" name="author[]" value="<%= author %>">
+          <button type="button" onclick="removeAuthorField(this)">Remove</button>
+        </div>
+      <% }); %>
+    </div>
+    
+    <button type="button" onclick="addAuthorField()">Add Author</button>
+    
+    <button type="submit">Update Book</button>
+  </form>
+  <script>
+    function addAuthor() {
+      const authorSection = document.getElementById("authorSection");
+      const authorField = document.createElement("div");
+      authorField.className = "author-field";
+      authorField.innerHTML = `
+          <input type="text" name="author[]" required>
+          <button type="button" onclick="removeAuthor(this)">Remove</button>
+      `;
+      authorSection.appendChild(authorField);
+    }
+
+    function removeAuthor(button) {
+      const authorSection = document.getElementById("authorSection");
+      authorSection.removeChild(button.parentNode);
+    }
+  </script>
+</body>
+</html>

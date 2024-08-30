@@ -2,10 +2,10 @@
   <div class="title">category</div>
   <ul class="category-list">
     <li class="category"><a class="category-link" href="/">All Books</a></li>
-    <% category.forEach(genre=>{%>
+    <% genres.forEach(genre=>{%>
     <li class="category">
-      <a class="category-link" href="/?category=<%= genre.genre %>"
-        ><%= genre.genre %></a
+      <a class="category-link" href="/?genre=<%= genre.name %>"
+        ><%= genre.name %></a
       >
     </li>
     <%}) %>

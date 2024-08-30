@@ -1,6 +1,25 @@
 * {
   box-sizing: border-box;
 }
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 20px;
+}
+.nav {
+  display: flex;
+  list-style: none;
+  gap: 5px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: rgb(16, 79, 138);
+  font-weight: bold;
+}
+
 .app-title,
 .category-partial .title {
   display: flex;

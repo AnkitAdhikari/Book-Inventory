@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <%- include('partials/error')%>
+    <form action="/" method="post">
+      <label for="title">Title:</label>
+      <input type="text" name="title" id="title" />
+      <div id="authorSection">
+        <label>Authors:</label><br />
+        <div class="author-field">
+          <input type="text" name="author[]" required />
+          <button type="button" onclick="addAuthor()">
+            Add Another Author
+          </button>
+        </div>
+      </div>
+      <label for="page">Page:</label>
+      <input type="number" name="page" id="page" />
+      <label for="genre">Genre:</label>
+      <select name="genre" id="genre">
+        <% genres.forEach(genres=>{%>
+        <option value="<%= genres.name %>"><%= genres.name %></option>
+        <%}) %>
+      </select>
+      <label for="description">Description:</label>
+      <textarea
+        name="description"
+        id="description"
+        placeholder="Book Description..."
+      ></textarea>
+      <label for="price">Price (&dollar;):</label>
+      <input type="text" name="price" id="price" />
+      <button type="submit">Add Book</button>
+    </form>
+    <script>
+      function addAuthor() {
+        const authorSection = document.getElementById("authorSection");
+        const authorField = document.createElement("div");
+        authorField.className = "author-field";
+        authorField.innerHTML = `
+            <input type="text" name="author[]" required>
+            <button type="button" onclick="removeAuthor(this)">Remove</button>
+        `;
+        authorSection.appendChild(authorField);
+      }
+
+      function removeAuthor(button) {
+        const authorSection = document.getElementById("authorSection");
+        authorSection.removeChild(button.parentNode);
+      }
+    </script>
+  </body>
+</html>
