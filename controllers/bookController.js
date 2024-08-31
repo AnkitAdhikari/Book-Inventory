@@ -1,4 +1,4 @@
-const { selectBooks, selectAllGenre, getGenre, selectBookByGenreId, insertBook, selectBookById, updateBook, updateBookDetails, insertGenre, removeGenreById, removeBookById, searchBook } = require("../db/queries");
+const { selectBooks, selectAllGenre, getGenre, selectBookByGenreId, insertBook, selectBookById, updateBookDetails, insertGenre, removeGenreById, removeBookById, searchBook } = require("../db/queries");
 const { body, validationResult } = require('express-validator')
 
 const bookValidation = [

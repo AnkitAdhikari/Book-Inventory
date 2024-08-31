@@ -1,5 +1,5 @@
 const { Pool } = require('pg');
-
+require('dotenv').config();
 module.exports = new Pool({
-    connectionString: "postgresql://ankit:ankit@psql@localhost:5432/book_inventory"
+    connectionString: process.env.DB_URL,
 });
