@@ -36,7 +36,7 @@ async function selectAllGenre() {
 }
 
 async function getGenre(genre) {
-    const { rows } = await db.query(`select * from Genre where name ILIKE $1`, [genre]);
+    const { rows } = await db.query(`select * from Genre where name LIKE $1`, [genre]);
     if (rows.length > 0) {
         return rows[0];
     }
@@ -246,11 +246,21 @@ async function updateBookDetails(id, book) {
     }
 }
 
+async function insertGenre(genre) {
+    try {
+        await db.query('INSERT INTO Genre (name) VALUES ($1)', [genre]);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
 module.exports = {
     selectBooks,
     selectAllGenre,
     getGenre,
     selectBookByGenreId,
     insertBook,
-    selectBookById, updateBook, updateBookDetails
+    selectBookById, updateBook, updateBookDetails,
+    insertGenre
 }
