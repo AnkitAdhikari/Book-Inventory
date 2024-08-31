@@ -7,15 +7,18 @@
     <title><%= pageTitle %></title>
   </head>
   <body>
-    <%- include('./partials/genre',{genres}) %>
-    <main>
-      <%- include('./partials/title') %> <% if(books.length>0){ %>
-      <div class="all-books-container">
-        <% books.forEach(book => { %> <%- include('./book',{book}) %> <% }); %>
-      </div>
-      <% }else{ %>
-      <p>Sorry, No books found.</p>
-      <% } %>
-    </main>
+    <div class="all-book-page">
+      <%- include('./partials/genre',{genres}) %>
+      <main>
+        <%- include('./partials/title') %> <% if(books.length>0){ %>
+        <div class="all-books-container">
+          <% books.forEach(book => { %> <%- include('./book',{book}) %> <% });
+          %>
+        </div>
+        <% }else{ %>
+        <p>Sorry, No books found.</p>
+        <% } %>
+      </main>
+    </div>
   </body>
 </html>

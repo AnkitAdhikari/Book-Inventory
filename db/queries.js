@@ -255,6 +255,64 @@ async function insertGenre(genre) {
     }
 }
 
+async function removeGenreById(id) {
+    try {
+        await db.query(`delete from genre where id = $1`, [id]);
+        return true;
+    } catch {
+        return false
+    }
+}
+
+
+
+async function removeBookById(id) {
+    try {
+        await db.query(`WITH deleted_book AS (
+      DELETE FROM Book
+      WHERE ID = $1
+      RETURNING *
+    )
+    SELECT COUNT(*) FROM deleted_book;`, [id]);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+async function searchBook(author, title) {
+    console.log(author)
+    console.log(title)
+    const { rows } = await db.query(`SELECT 
+    b.ID,
+    b.title,
+    b.page,
+    b.description,
+    b.price,
+    array_agg(a.name) AS authors,
+    array_agg(g.name) AS genres
+FROM 
+    Book b
+LEFT JOIN 
+    Book_Author ba ON b.ID = ba.book_id
+LEFT JOIN 
+    Author a ON ba.author_id = a.ID
+LEFT JOIN 
+    Book_Genre bg ON b.ID = bg.book_id
+LEFT JOIN 
+    Genre g ON bg.genre_id = g.ID
+WHERE 
+    (COALESCE($1, '') = '' OR b.title ILIKE '%' || COALESCE($1, '') || '%')
+    AND
+    (COALESCE($2, '') = '' OR a.name ILIKE '%' || COALESCE($2, '') || '%')
+GROUP BY 
+    b.ID;
+
+`, [title, author])
+
+    return rows;
+}
+
 module.exports = {
     selectBooks,
     selectAllGenre,
@@ -262,5 +320,8 @@ module.exports = {
     selectBookByGenreId,
     insertBook,
     selectBookById, updateBook, updateBookDetails,
-    insertGenre
+    insertGenre,
+    removeGenreById,
+    removeBookById,
+    searchBook
 }

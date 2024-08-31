@@ -1,4 +1,4 @@
-const { selectBooks, selectAllGenre, getGenre, selectBookByGenreId, insertBook, selectBookById, updateBook, updateBookDetails } = require("../db/queries");
+const { selectBooks, selectAllGenre, getGenre, selectBookByGenreId, insertBook, selectBookById, updateBook, updateBookDetails, insertGenre, removeGenreById, removeBookById, searchBook } = require("../db/queries");
 const { body, validationResult } = require('express-validator')
 
 const bookValidation = [
@@ -35,15 +35,22 @@ const getBookByGenre = async (genre) => {
 
 
 const getBooks = async (req, res) => {
+    let { author, title } = req.query;
     const genres = await selectAllGenre();
+    if (author || title) {
+        author = author.trim();
+        title = title.trim();
+        const books = await searchBook(author, title);
+        console.log(books)
+        res.render('home', { books, genres, pageTitle: "Search Result" })
+        return
+    }
     if (req.query.genre) {
         const books = await getBookByGenre(req.query.genre)
-        console.log(books);
         res.render('home', { books, genres, pageTitle: "All Books" })
         return;
     }
     const books = await selectBooks();
-    console.log(books);
     res.render('home', { books, genres, pageTitle: "All Books" })
 }
 
@@ -93,6 +100,48 @@ const updateBookPut = [
     }
 ]
 
+const genreValidation = [
+    body('genre')
+        .trim()
+        .notEmpty()
+        .withMessage('Genre cannot be empty')
+]
+
+const createGenrePost = [
+    genreValidation,
+    async (req, res) => {
+        const { genre } = req.body;
+        const errors = validationResult(req);
+        if (!errors.isEmpty) {
+            res.redirect('/');
+        }
+        await insertGenre(genre);
+        res.redirect('/');
+    }
+
+]
+
+const deleteGenre = async (req, res) => {
+    const referer = req.headers.referer;
+    const { id } = req.params;
+    const row = await selectBookByGenreId(id);
+    if (row.length < 1) {
+        await removeGenreById(id);
+        res.redirect('/');
+        return
+    }
+    res.redirect(referer);
+}
+
+const deleteBook = async (req, res) => {
+    await removeBookById(req.params.id);
+    res.redirect(req.headers.referer);
+}
+
+const getSearchForm = async (req, res) => {
+    res.render('search');
+}
+
 module.exports = {
-    getBooks, createBookGet, createBookPost, updateFormGet, updateBookPut
+    getBooks, createBookGet, createBookPost, updateFormGet, updateBookPut, createGenrePost, deleteGenre, deleteBook, getSearchForm
 }
