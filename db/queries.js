@@ -142,7 +142,7 @@ async function insertBook(book) {
 }
 
 async function updateBook(id, book) {
-    console.log(book);
+
     try {
         await db.query('BEGIN');
 
@@ -184,7 +184,7 @@ async function updateBook(id, book) {
         return true;
     } catch (e) {
         await db.query("ROLLBACK");
-        console.log(e);
+
         return false;
     }
 }
@@ -241,7 +241,7 @@ async function updateBookDetails(id, book) {
         return true;
     } catch (e) {
         await db.query('ROLLBACK');
-        console.log(e);
+
         return false;
     }
 }
@@ -281,8 +281,7 @@ async function removeBookById(id) {
 }
 
 async function searchBook(author, title) {
-    console.log(author)
-    console.log(title)
+
     const { rows } = await db.query(`SELECT 
     b.ID,
     b.title,

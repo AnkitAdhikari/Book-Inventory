@@ -1,7 +1,7 @@
 const express = require('express');
 require('dotenv').config();
 const methodOverride = require('method-override');
-const { PORT } = process.env;
+const { PORT } = process.env || 8000;
 const path = require('node:path');
 const bookRouter = require('./routes/bookRouter');
 const app = express();

@@ -1,5 +1,5 @@
 const { Client } = require('pg');
-
+require('dotenv').config();
 const SQL = `
 
 CREATE TABLE IF NOT EXISTS Book (
@@ -103,7 +103,7 @@ INSERT INTO Book_Genre (book_id, genre_id) VALUES
 async function main() {
     console.log("Seeding.....");
     const client = new Client({
-        connectionString: "postgresql://ankit:ankit@psql@localhost:5432/book_inventory"
+        connectionString: process.env.DB_URL,
     });
     await client.connect();
     await client.query(SQL);

@@ -41,7 +41,6 @@ const getBooks = async (req, res) => {
         author = author.trim();
         title = title.trim();
         const books = await searchBook(author, title);
-        console.log(books)
         res.render('home', { books, genres, pageTitle: "Search Result" })
         return
     }
@@ -77,8 +76,7 @@ const updateFormGet = async (req, res) => {
     const { id } = req.params;
     const genres = await selectAllGenre();
     let [book] = await selectBookById(id);
-    console.log(book);
-    console.log(genres);
+
     res.render('update', { book, genres })
 }
 
