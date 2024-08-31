@@ -1,5 +1,6 @@
-const { selectBooks, selectAllGenre, getGenre, selectBookByGenreId, insertBook, selectBookById, updateBookDetails, insertGenre, removeGenreById, removeBookById, searchBook } = require("../db/queries");
+const { selectBooks, selectAllGenre, getGenre, selectBookByGenreId, insertBook, selectBookById, updateBookDetails, insertGenre, removeGenreById, removeBookById, searchBook, updateBook } = require("../db/queries");
 const { body, validationResult } = require('express-validator')
+const asyncHandler = require('express-async-handler');
 
 const bookValidation = [
     body('title').trim()
@@ -60,7 +61,7 @@ const createBookGet = async (req, res) => {
 
 const createBookPost = [
     bookValidation,
-    async (req, res) => {
+    asyncHandler(async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             const genres = await selectAllGenre();
@@ -69,7 +70,7 @@ const createBookPost = [
         }
         await insertBook(req.body);
         res.redirect('/');
-    }
+    })
 ]
 
 const updateFormGet = async (req, res) => {
@@ -82,7 +83,7 @@ const updateFormGet = async (req, res) => {
 
 const updateBookPut = [
     bookValidation,
-    async (req, res) => {
+    asyncHandler(async (req, res) => {
         const { id } = req.params;
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -95,7 +96,7 @@ const updateBookPut = [
         if (isUpdated) {
             res.redirect('/');
         }
-    }
+    })
 ]
 
 const genreValidation = [

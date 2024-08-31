@@ -6,9 +6,9 @@ const bookRouter = Router();
 
 bookRouter.get('/', asyncHandler(getBooks));
 bookRouter.get('/new', asyncHandler(createBookGet));
-bookRouter.post('/', asyncHandler(createBookPost));
+bookRouter.post('/', createBookPost);
 bookRouter.get('/update/:id', asyncHandler(updateFormGet))
-bookRouter.put('/:id', asyncHandler(updateBookPut));
+bookRouter.put('/:id', updateBookPut);
 bookRouter.delete('/:id', asyncHandler(deleteBook));
 bookRouter.get('/search', asyncHandler(getSearchForm));
 bookRouter.post('/genre', asyncHandler(createGenrePost))

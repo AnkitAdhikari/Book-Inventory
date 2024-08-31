@@ -141,99 +141,67 @@ async function insertBook(book) {
     }
 }
 
-async function updateBook(id, book) {
-
-    try {
-        await db.query('BEGIN');
-
-        await db.query(`UPDATE Book
-      SET 
-          title = $1,
-          page = $2,
-          description = $3,
-          price = $4
-      WHERE 
-          ID = $5;`, [book.title, book.page, book.description, book.price, id])
-
-        await db.query(`DELETE FROM Book_Author WHERE book_id = $1;`, [id]);
-
-        await db.query(`WITH inserted_authors AS (
-          INSERT INTO Author (name)
-          VALUES ${book.author.map((_, i) => `($${i + 1})`).join(', ')}
-          ON CONFLICT (name) DO NOTHING
-          RETURNING ID, name
-      )
-      INSERT INTO Book_Author (book_id, author_id)
-      SELECT $${book.author.length + 1}, ID FROM Author WHERE name IN (${book.author.map((_, i) => `$${i + 1}`).join(', ')});
-    `, [...book.author, id])
-
-        await db.query(`DELETE FROM Book_Genre WHERE book_id = $1;`, [id]);
-
-        await db.query(`
-      WITH inserted_genre AS (
-          INSERT INTO Genre (name)
-          VALUES ($1)
-          ON CONFLICT (name) DO NOTHING
-          RETURNING ID
-      )
-      INSERT INTO Book_Genre (book_id, genre_id)
-      SELECT $2, ID FROM Genre WHERE name = $1;
-    `, [book.genre, id]);
-
-        await db.query('COMMIT');
-        return true;
-    } catch (e) {
-        await db.query("ROLLBACK");
-
-        return false;
-    }
-}
-
 async function updateBookDetails(id, book) {
-
     try {
         await db.query('BEGIN');
 
         // Step 1: Update the Book Table
         const updateBookQuery = `
-          UPDATE Book
-          SET 
-              title = $1,
-              page = $2,
-              description = $3,
-              price = $4
-          WHERE 
-              ID = $5;
+            UPDATE Book
+            SET 
+                title = $1,
+                page = $2,
+                description = $3,
+                price = $4
+            WHERE 
+                ID = $5;
         `;
         await db.query(updateBookQuery, [book.title, book.page, book.description, book.price, id]);
 
         // Step 2: Update Author Relationships
         await db.query('DELETE FROM Book_Author WHERE book_id = $1;', [id]);
 
-        const insertAuthorQuery = `
-          WITH inserted_authors AS (
-              INSERT INTO Author (name)
-              VALUES ${book.author.map((_, i) => `($${i + 1})`).join(', ')}
-              ON CONFLICT (name) DO NOTHING
-              RETURNING ID, name
-          )
-          INSERT INTO Book_Author (book_id, author_id)
-          SELECT $${book.author.length + 1}, ID FROM Author WHERE name IN (${book.author.map((_, i) => `$${i + 1}`).join(', ')});
-        `;
-        await db.query(insertAuthorQuery, [...book.author, id]);
+        for (const authorName of book.author) {
+            // Insert new authors if they don't exist, and retrieve their IDs
+            const insertAuthorQuery = `
+                INSERT INTO Author (name)
+                VALUES ($1)
+                ON CONFLICT (name) DO NOTHING
+                RETURNING ID;
+            `;
+            const authorResult = await db.query(insertAuthorQuery, [authorName]);
+
+            let authorId;
+            if (authorResult.rows.length > 0) {
+                // If the author was newly inserted, use the returned ID
+                authorId = authorResult.rows[0].id;
+            } else {
+                // If the author already existed, fetch the ID
+                const selectAuthorQuery = `SELECT ID FROM Author WHERE name = $1;`;
+                const selectResult = await db.query(selectAuthorQuery, [authorName]);
+                authorId = selectResult.rows[0].id;
+            }
+
+            // Create a relationship between the book and the author
+            const insertBookAuthorQuery = `
+                INSERT INTO Book_Author (book_id, author_id)
+                VALUES ($1, $2);
+            `;
+            await db.query(insertBookAuthorQuery, [id, authorId]);
+        }
 
         // Step 3: Update Genre Relationship
         await db.query('DELETE FROM Book_Genre WHERE book_id = $1;', [id]);
 
         const insertGenreQuery = `
-          WITH inserted_genre AS (
-              INSERT INTO Genre (name)
-              VALUES ($1)
-              ON CONFLICT (name) DO NOTHING
-              RETURNING ID
-          )
-          INSERT INTO Book_Genre (book_id, genre_id)
-          SELECT $2, ID FROM Genre WHERE name = $1;
+            WITH inserted_genre AS (
+                INSERT INTO Genre (name)
+                VALUES ($1)
+                ON CONFLICT (name) DO NOTHING
+                RETURNING ID
+            )
+            INSERT INTO Book_Genre (book_id, genre_id)
+            SELECT $2, ID FROM Genre WHERE name = $1;
         `;
         await db.query(insertGenreQuery, [book.genre, id]);
 
@@ -241,10 +209,11 @@ async function updateBookDetails(id, book) {
         return true;
     } catch (e) {
         await db.query('ROLLBACK');
-
+        console.error('Error during book update:', e);
         return false;
     }
 }
+
 
 async function insertGenre(genre) {
     try {
@@ -318,7 +287,7 @@ module.exports = {
     getGenre,
     selectBookByGenreId,
     insertBook,
-    selectBookById, updateBook, updateBookDetails,
+    selectBookById, updateBookDetails,
     insertGenre,
     removeGenreById,
     removeBookById,
